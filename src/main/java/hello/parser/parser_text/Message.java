@@ -1,7 +1,9 @@
-package hello.parser;
+package hello.parser.parser_text;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -11,7 +13,17 @@ public class Message {
 
     private String mid;
     private Integer seq;
+
+    public List<AttachmentsObject> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<AttachmentsObject> attachments) {
+        this.attachments = attachments;
+    }
+
     private String text;
+    private List<AttachmentsObject> attachments;
 
     public String getMid() {
         return mid;
@@ -43,6 +55,7 @@ public class Message {
                 "mid='" + mid + '\'' +
                 ", seq=" + seq +
                 ", text='" + text + '\'' +
+                ", attachments=" + attachments +
                 '}';
     }
 }

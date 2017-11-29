@@ -1,6 +1,6 @@
 package hello;
 
-import hello.parser.FacebookMessage;
+import hello.parser.parser_text.FacebookMessage;
 import hello.parser.JacksonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,6 @@ public class HelloController {
                 FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
                 LOGGER.info("parsed msg to obj");
                 System.out.println("our message: " + facebookMessage.toString());
-
             } catch (Exception e) {
                 System.out.println("can not parse message");
                 LOGGER.error(e.getMessage());
