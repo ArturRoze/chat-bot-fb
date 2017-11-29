@@ -1,4 +1,4 @@
-package hello.parser.parser_text;
+package hello.parser.parser_json_to_obj;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,7 +7,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Sender {
+public class Recipient {
 
     private String id;
 
@@ -21,7 +21,7 @@ public class Sender {
 
     @Override
     public String toString() {
-        return "Sender{" +
+        return "Recipient{" +
                 "id='" + id + '\'' +
                 '}';
     }

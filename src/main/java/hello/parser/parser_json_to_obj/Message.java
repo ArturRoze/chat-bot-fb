@@ -1,4 +1,4 @@
-package hello.parser.parser_text;
+package hello.parser.parser_json_to_obj;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,6 +12,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 public class Message {
 
     private String mid;
+
     private Integer seq;
 
     public List<AttachmentsObject> getAttachments() {
