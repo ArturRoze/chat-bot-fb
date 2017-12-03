@@ -11,7 +11,7 @@ public class Attachment {
 
     private String type = "template";
 
-    Payload payload;
+    private Payload payload;
 
     public Attachment(Payload payload) {
         this.payload = payload;

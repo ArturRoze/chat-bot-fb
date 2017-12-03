@@ -20,9 +20,9 @@ public class Elements {
     private String subtitle;
 
     @JsonProperty("default_action")
-    DefaultAction defaultAction;
+    private DefaultAction defaultAction;
 
-    List<Buttons> buttons;
+    private List<Buttons> buttons;
 
     public Elements(String title) {
         this.title = title;

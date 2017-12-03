@@ -9,7 +9,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
 
-    Attachment attachment;
+    private Attachment attachment;
 
     public Message(Attachment attachment) {
         this.attachment = attachment;

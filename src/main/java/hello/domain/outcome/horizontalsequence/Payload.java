@@ -16,7 +16,7 @@ public class Payload {
     @JsonProperty("template_type")
     private String templateType = "generic";
 
-    List<Elements> elements;
+    private List<Elements> elements;
 
     public Payload(List<Elements> elements) {
         this.elements = elements;
