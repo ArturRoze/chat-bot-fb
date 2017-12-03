@@ -1,4 +1,4 @@
-package hello.parser;
+package hello.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

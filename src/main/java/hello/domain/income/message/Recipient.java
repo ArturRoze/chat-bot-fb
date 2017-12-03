@@ -1,4 +1,4 @@
-package hello.parser.parser_obj_to_json;
+package hello.domain.income.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,13 +7,9 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class RecipientAns {
+public class Recipient {
 
     private String id;
-
-    public RecipientAns(String id) {
-        this.id = id;
-    }
 
     public String getId() {
         return id;
@@ -24,10 +20,9 @@ public class RecipientAns {
     }
 
     @Override
-    public String
-    toString() {
+    public String toString() {
         return "Recipient{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 '}';
     }
 }

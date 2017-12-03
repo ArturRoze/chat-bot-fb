@@ -1,4 +1,4 @@
-package hello.parser.parser_json_to_obj;
+package hello.domain.income.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,22 +7,22 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayLoadObject {
+public class Sender {
 
-    private String url;
+    private String id;
 
-    public String getUrl() {
-        return url;
+    public String getId() {
+        return id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
     public String toString() {
-        return "PayLoadObject{" +
-                "url='" + url + '\'' +
+        return "Sender{" +
+                "id='" + id + '\'' +
                 '}';
     }
 }

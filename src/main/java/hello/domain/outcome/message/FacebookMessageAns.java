@@ -1,4 +1,4 @@
-package hello.parser.parser_obj_to_json;
+package hello.domain.outcome.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
