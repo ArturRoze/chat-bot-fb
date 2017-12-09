@@ -187,7 +187,7 @@ public class MessageProcessor {
 
         try{
             FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
-            LOGGER.info("parsed msg to obj");
+            LOGGER.info("parsed msg to obj from getIncomeMessage");
             System.out.println("our message: " + facebookMessage.toString());
 
             List<EntryObject> entry = facebookMessage.getEntry();

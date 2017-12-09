@@ -3,6 +3,7 @@ package hello.http;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -26,8 +27,18 @@ public class HttpSender {
         System.out.println("\nSending 'POST' request to URL : " + url);
         System.out.println("Response Code : " + responseCode);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        InputStream is;
+
+        if (con.getResponseCode() < HttpsURLConnection.HTTP_BAD_REQUEST){
+            is = con.getInputStream();
+        } else {
+            is = con.getErrorStream();
+        }
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
         String inputLine;
+
         StringBuffer response = new StringBuffer();
 
         while ((inputLine = in.readLine()) != null) {
