@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Optional;
 
 @RestController
@@ -51,7 +52,12 @@ public class HelloController {
         } else {
 
             Optional<Message> incomeMessage = messageProcessor.getIncomeMessage(request);
-            String text = incomeMessage.get().getText();
+
+            String text = "";
+            if (incomeMessage != null){
+
+                text = incomeMessage.get().getText();
+            }
 
             Optional<String> idFromIncomeMessage = messageProcessor.getIdFromIncomeMessage(request);
 
