@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 @Getter
@@ -15,12 +13,8 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @ToString
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EntryObject {
+public class QuickReply {
 
-    private String id;
-
-    private Long time;
-
-    private List<MessagingObject> messaging;
+    private String payload;
 
 }

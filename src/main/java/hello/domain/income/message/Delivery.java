@@ -15,12 +15,12 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 @ToString
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class EntryObject {
+public class Delivery {
 
-    private String id;
+    private List<String> mids;
 
-    private Long time;
+    private Long watermark;
 
-    private List<MessagingObject> messaging;
+    private Integer seq;
 
 }
