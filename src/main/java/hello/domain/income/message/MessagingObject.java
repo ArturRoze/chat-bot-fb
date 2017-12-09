@@ -24,4 +24,6 @@ public class MessagingObject {
     private Message message;
 
     private Read read;
+
+    private Delivery delivery;
 }

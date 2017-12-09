@@ -26,9 +26,8 @@ public class MessageProcessor {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public Optional<String> getIdFromIncomeMessage(String request) throws IOException {
-        FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
-        LOGGER.info("parsed msg to obj");
-        System.out.println("our message: " + facebookMessage.toString());
+
+        FacebookMessage facebookMessage = getIncomeFacebookMessage(request);
 
         List<EntryObject> entry = facebookMessage.getEntry();
 
@@ -81,13 +80,13 @@ public class MessageProcessor {
         }
     }
 
-    public void processIncomeMessageAndSendCarousel(String request){
+    public void processIncomeMessageAndSendCarousel(String request) {
 
         try {
 
             HorizontalMenu horizontalMenu = buildHorizontalMenu(request);
 
-            if (horizontalMenu != null){
+            if (horizontalMenu != null) {
 
                 String json = JacksonParser.prepareObject(horizontalMenu);
 
@@ -133,7 +132,7 @@ public class MessageProcessor {
         return null;
     }
 
-    public void processOutcomeMessageAndSendPersistenceMenu(){
+    public void processOutcomeMessageAndSendPersistenceMenu() {
 
         try {
 
@@ -185,21 +184,34 @@ public class MessageProcessor {
 
     public Optional<hello.domain.income.message.Message> getIncomeMessage(String request) {
 
-        try{
-            FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
-            LOGGER.info("parsed msg to obj from getIncomeMessage");
-            System.out.println("our message: " + facebookMessage.toString());
+        try {
+            FacebookMessage facebookMessage = getIncomeFacebookMessage(request);
 
             List<EntryObject> entry = facebookMessage.getEntry();
             return Optional.of(entry)
                     .map((List<EntryObject> t) -> t.get(0).getMessaging())
                     .map(messagingObjects -> messagingObjects.get(0)
                             .getMessage());
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             LOGGER.info(e.getMessage(), e);
         }
 
         return Optional.empty();
+    }
+
+    public FacebookMessage getIncomeFacebookMessage(String request) {
+
+        FacebookMessage facebookMessage = null;
+        try {
+            facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
+
+        } catch (Exception e) {
+
+            LOGGER.error(String.format(
+                    "error parse request: %s, with exception %s",
+                    request, e.getMessage()), e);
+        }
+        return facebookMessage;
     }
 }
