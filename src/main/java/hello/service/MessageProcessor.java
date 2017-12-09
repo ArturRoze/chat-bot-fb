@@ -127,7 +127,7 @@ public class MessageProcessor {
 
         } catch (Exception e) {
             System.out.println("can not parse message");
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
 
         return null;
