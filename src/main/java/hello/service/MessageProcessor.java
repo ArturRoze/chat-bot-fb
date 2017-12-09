@@ -82,6 +82,30 @@ public class MessageProcessor {
     }
 
     public void processIncomeMessageAndSendCarousel(String request){
+
+        try {
+
+            HorizontalMenu horizontalMenu = buildHorizontalMenu(request);
+
+            if (horizontalMenu != null){
+
+                String json = JacksonParser.prepareObject(horizontalMenu);
+
+                System.out.println(json);
+
+                HttpSender httpSender = new HttpSender();
+                String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+                httpSender.sendPost(url, json);
+            }
+
+        } catch (Exception e) {
+            System.out.println("can not parse message");
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    private HorizontalMenu buildHorizontalMenu(String request) {
+
         try {
 
             Optional<String> id = getIdFromIncomeMessage(request);
@@ -99,14 +123,28 @@ public class MessageProcessor {
 
             Recipient recipient = new Recipient(id.get(), message);
 
-            HorizontalMenu horizontalMenu = new HorizontalMenu(recipient, message);
+            return new HorizontalMenu(recipient, message);
 
-            String json = JacksonParser.prepareObject(horizontalMenu);
+        } catch (Exception e) {
+            System.out.println("can not parse message");
+            LOGGER.error(e.getMessage());
+        }
+
+        return null;
+    }
+
+    public void processOutcomeMessageAndSendPersistenceMenu(){
+
+        try {
+
+            StartPersistenceMenu startPersistenceMenu = buildPersistenceMenu();
+
+            String json = JacksonParser.prepareObject(startPersistenceMenu);
 
             System.out.println(json);
 
             HttpSender httpSender = new HttpSender();
-            String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+            String url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
             httpSender.sendPost(url, json);
 
         } catch (Exception e) {
@@ -115,48 +153,33 @@ public class MessageProcessor {
         }
     }
 
-    public void processIncomeMessageAndSendPersistenceMenu(){
-        try {
+    private StartPersistenceMenu buildPersistenceMenu() {
 
-            String webUrl = "https://www.facebook.com/profile.php?id=100010483650964";
+        String webUrl = "https://www.facebook.com/profile.php?id=100010483650964";
 
-            CallToActions firstCallToActionsWithPayload = new CallToActions("Pay Bill", "postback", "PAYBILL");
-            CallToActions secondCallToActionsWithPayload = new CallToActions("History", "postback", "HISTORY");
-            CallToActions thirdCallToActionsWithPayload = new CallToActions("Contact Info", "postback", "CONTACT_INFO");
+        CallToActions firstCallToActionsWithPayload = new CallToActions("Pay Bill", "postback", "PAYBILL");
+        CallToActions secondCallToActionsWithPayload = new CallToActions("History", "postback", "HISTORY");
+        CallToActions thirdCallToActionsWithPayload = new CallToActions("Contact Info", "postback", "CONTACT_INFO");
 
-            List<CallToActions> callToActionsWithPayload = new ArrayList<>();
-            callToActionsWithPayload.add(firstCallToActionsWithPayload);
-            callToActionsWithPayload.add(secondCallToActionsWithPayload);
-            callToActionsWithPayload.add(thirdCallToActionsWithPayload);
+        List<CallToActions> callToActionsWithPayload = new ArrayList<>();
+        callToActionsWithPayload.add(firstCallToActionsWithPayload);
+        callToActionsWithPayload.add(secondCallToActionsWithPayload);
+        callToActionsWithPayload.add(thirdCallToActionsWithPayload);
 
-            CallToActions callToActions = new CallToActions("My Account", "nested", callToActionsWithPayload);
-            CallToActions callToActionsWithUrl = new CallToActions("Latest News", "web_url", webUrl, "full");
+        CallToActions callToActions = new CallToActions("My Account", "nested", callToActionsWithPayload);
+        CallToActions callToActionsWithUrl = new CallToActions("Latest News", "web_url", webUrl, "full");
 
-            List<CallToActions> generalCallToActions = new ArrayList<>();
-            generalCallToActions.add(callToActions);
-            generalCallToActions.add(callToActionsWithUrl);
+        List<CallToActions> generalCallToActions = new ArrayList<>();
+        generalCallToActions.add(callToActions);
+        generalCallToActions.add(callToActionsWithUrl);
 
-            PersistentMenu firstPersistentMenu = new PersistentMenu("default", true, generalCallToActions);
-            PersistentMenu secondPersistentMenu = new PersistentMenu("zh_CN", false, callToActionsWithPayload);
+        PersistentMenu firstPersistentMenu = new PersistentMenu("default", true, generalCallToActions);
+        PersistentMenu secondPersistentMenu = new PersistentMenu("zh_CN", false, callToActionsWithPayload);
 
-            List<PersistentMenu> persistentMenus = new ArrayList<>();
-            persistentMenus.add(firstPersistentMenu);
-            persistentMenus.add(secondPersistentMenu);
+        List<PersistentMenu> persistentMenus = new ArrayList<>();
+        persistentMenus.add(firstPersistentMenu);
+        persistentMenus.add(secondPersistentMenu);
 
-            StartPersistenceMenu startPersistenceMenu = new StartPersistenceMenu(persistentMenus);
-
-            String json = JacksonParser.prepareObject(startPersistenceMenu);
-
-            System.out.println(json);
-
-            HttpSender httpSender = new HttpSender();
-            String url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
-
-            httpSender.sendPost(url, json);
-
-        } catch (Exception e) {
-            System.out.println("can not parse message");
-            LOGGER.error(e.getMessage());
-        }
+        return new StartPersistenceMenu(persistentMenus);
     }
 }

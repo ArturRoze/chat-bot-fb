@@ -43,7 +43,7 @@ public class HelloController {
 //
 //            messageProcessor.processIncomeMessageAndSendCarousel(request);
 
-            messageProcessor.processIncomeMessageAndSendPersistenceMenu();
+            messageProcessor.processOutcomeMessageAndSendPersistenceMenu();
 
             return ResponseEntity.ok().build();
         }
