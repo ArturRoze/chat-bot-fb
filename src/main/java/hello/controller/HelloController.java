@@ -40,8 +40,10 @@ public class HelloController {
         } else {
 
 //            messageProcessor.processIncomeMessageAndSendText(request);
+//
+//            messageProcessor.processIncomeMessageAndSendCarousel(request);
 
-            messageProcessor.processIncomeMessageAndSendCarousel(request);
+            messageProcessor.processIncomeMessageAndSendPersistenceMenu();
 
             return ResponseEntity.ok().build();
         }
