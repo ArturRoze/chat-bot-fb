@@ -25,7 +25,7 @@ public class MessageProcessor {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    private Optional<String> getIdFromIncomeMessage(String request) throws IOException {
+    public Optional<String> getIdFromIncomeMessage(String request) throws IOException {
         FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
         LOGGER.info("parsed msg to obj");
         System.out.println("our message: " + facebookMessage.toString());
@@ -181,5 +181,25 @@ public class MessageProcessor {
         persistentMenus.add(secondPersistentMenu);
 
         return new StartPersistenceMenu(persistentMenus);
+    }
+
+    public Optional<hello.domain.income.message.Message> getIncomeMessage(String request) {
+
+        try{
+            FacebookMessage facebookMessage = JacksonParser.parseObject(request, FacebookMessage.class);
+            LOGGER.info("parsed msg to obj");
+            System.out.println("our message: " + facebookMessage.toString());
+
+            List<EntryObject> entry = facebookMessage.getEntry();
+            return Optional.of(entry)
+                    .map((List<EntryObject> t) -> t.get(0).getMessaging())
+                    .map(messagingObjects -> messagingObjects.get(0)
+                            .getMessage());
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            LOGGER.info(e.getMessage(), e);
+        }
+
+        return Optional.empty();
     }
 }
