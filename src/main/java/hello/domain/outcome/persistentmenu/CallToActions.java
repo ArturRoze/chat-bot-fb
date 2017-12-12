@@ -3,11 +3,17 @@ package hello.domain.outcome.persistentmenu;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
+@Getter
+@Setter
+@ToString
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CallToActions {
@@ -43,65 +49,5 @@ public class CallToActions {
         this.title = title;
         this.type = type;
         this.payload = payload;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public List<CallToActions> getCallToActions() {
-        return callToActions;
-    }
-
-    public void setCallToActions(List<CallToActions> callToActions) {
-        this.callToActions = callToActions;
-    }
-
-    public String getPayload() {
-        return payload;
-    }
-
-    public void setPayload(String payload) {
-        this.payload = payload;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getWebViewHeightRatio() {
-        return webViewHeightRatio;
-    }
-
-    public void setWebViewHeightRatio(String webViewHeightRatio) {
-        this.webViewHeightRatio = webViewHeightRatio;
-    }
-
-    @Override
-    public String toString() {
-        return "CallToActions{" +
-                "title='" + title + '\'' +
-                ", type='" + type + '\'' +
-                ", callToActions=" + callToActions +
-                ", payload='" + payload + '\'' +
-                ", url='" + url + '\'' +
-                ", webViewHeightRatio='" + webViewHeightRatio + '\'' +
-                '}';
     }
 }

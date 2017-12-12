@@ -2,9 +2,15 @@ package hello.domain.outcome.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
+@Getter
+@Setter
+@ToString
 @JsonInclude(NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RecipientAns {
@@ -13,21 +19,5 @@ public class RecipientAns {
 
     public RecipientAns(String id) {
         this.id = id;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public String
-    toString() {
-        return "Recipient{" +
-                "id=" + id +
-                '}';
     }
 }

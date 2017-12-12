@@ -9,6 +9,7 @@ import hello.domain.outcome.message.RecipientAns;
 import hello.domain.outcome.persistentmenu.CallToActions;
 import hello.domain.outcome.persistentmenu.PersistentMenu;
 import hello.domain.outcome.persistentmenu.StartPersistenceMenu;
+import hello.enums.WebhookIncomeMessageType;
 import hello.http.HttpSender;
 import hello.utils.JacksonParser;
 import org.slf4j.Logger;
@@ -31,17 +32,6 @@ public class MessageProcessor {
 
         List<EntryObject> entry = facebookMessage.getEntry();
 
-//                List<EntryObject> entry = facebookMessage.getEntry();
-//                List<MessagingObject> messaging = entry.get(0).getMessaging();
-//                String id = messaging.get(0).getSender().getId();
-//                System.out.println("sender id = " + id);
-
-//                Sender sender = null;
-//                for (EntryObject entryObject : facebookMessage.getEntry()) {
-//                    for (MessagingObject messagingObject : entryObject.getMessaging()) {
-//                        sender = messagingObject.getSender();
-//                    }
-//                }
         return Optional.of(entry)
                 .map((List<EntryObject> t) -> t.get(0).getMessaging())
                 .map(messagingObjects -> messagingObjects.get(0)
@@ -213,5 +203,46 @@ public class MessageProcessor {
                     request, e.getMessage()), e);
         }
         return facebookMessage;
+    }
+
+    public void processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(String request) throws IOException {
+
+        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+
+        if (incomeFacebookMessage != null) {
+            WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
+            if (incomeMessageType == WebhookIncomeMessageType.MESSAGE) {
+
+                Optional<hello.domain.income.message.Message> incomeMessage = getIncomeMessage(request);
+
+                String text = "";
+
+                if (incomeMessage != null) {
+
+                    text = incomeMessage.get().getText();
+                }
+
+                Optional<String> idFromIncomeMessage = getIdFromIncomeMessage(request);
+
+                RecipientAns recipient = new RecipientAns(idFromIncomeMessage.get());
+
+                MessageAns messageAns = new MessageAns("Your msg: " + text + " it's length: " + text.length());
+
+                try {
+                    FacebookMessageAns facebookMessageAns = new FacebookMessageAns(recipient, messageAns);
+                    String json = JacksonParser.prepareObject(facebookMessageAns);
+
+                    HttpSender httpSender = new HttpSender();
+                    String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+                    httpSender.sendPost(url, json);
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    LOGGER.info(e.getMessage());
+                }
+            } else {
+                LOGGER.info("incomeMessageType: " + incomeMessageType.name());
+            }
+        }
     }
 }
