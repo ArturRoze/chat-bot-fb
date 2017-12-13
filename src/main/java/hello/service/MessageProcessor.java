@@ -2,6 +2,7 @@ package hello.service;
 
 import hello.domain.income.message.EntryObject;
 import hello.domain.income.message.FacebookMessage;
+import hello.domain.income.userprofile.UserProfile;
 import hello.domain.outcome.horizontalsequence.*;
 import hello.domain.outcome.message.FacebookMessageAns;
 import hello.domain.outcome.message.MessageAns;
@@ -26,7 +27,7 @@ public class MessageProcessor {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public Optional<String> getIdFromIncomeMessage(String request) throws IOException {
+    public Optional<String> getSenderIdFromIncomeMessage(String request) throws IOException {
 
         FacebookMessage facebookMessage = getIncomeFacebookMessage(request);
 
@@ -43,7 +44,7 @@ public class MessageProcessor {
 
         try {
 
-            Optional<String> id = getIdFromIncomeMessage(request);
+            Optional<String> id = getSenderIdFromIncomeMessage(request);
 
             FacebookMessageAns facebookMessageAns = new FacebookMessageAns(new RecipientAns(id.get()), new MessageAns("hello, from bot"));
 
@@ -97,7 +98,7 @@ public class MessageProcessor {
 
         try {
 
-            Optional<String> id = getIdFromIncomeMessage(request);
+            Optional<String> id = getSenderIdFromIncomeMessage(request);
 
             List<Elements> elements = new ArrayList<>();
             Elements element = new Elements("MyFirstElement");
@@ -205,6 +206,22 @@ public class MessageProcessor {
         return facebookMessage;
     }
 
+    public UserProfile getIncomeUserProfile(String request) {
+
+        UserProfile userProfile = null;
+        try {
+
+            userProfile = JacksonParser.parseObject(request, UserProfile.class);
+
+        } catch (Exception e) {
+
+            LOGGER.error(String.format(
+                    "error parse request: %s, with exception %s",
+                    request, e.getMessage()), e);
+        }
+        return userProfile;
+    }
+
     public void processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(String request) throws IOException {
 
         FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
@@ -222,7 +239,7 @@ public class MessageProcessor {
                     text = incomeMessage.get().getText();
                 }
 
-                Optional<String> idFromIncomeMessage = getIdFromIncomeMessage(request);
+                Optional<String> idFromIncomeMessage = getSenderIdFromIncomeMessage(request);
 
                 RecipientAns recipient = new RecipientAns(idFromIncomeMessage.get());
 
@@ -239,6 +256,67 @@ public class MessageProcessor {
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                     LOGGER.info(e.getMessage());
+                }
+            } else {
+                LOGGER.info("incomeMessageType: " + incomeMessageType.name());
+            }
+        }
+    }
+
+    public void parsePersonalDataFromIncomeMessage(String request) throws IOException {
+
+        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+
+        if (incomeFacebookMessage != null) {
+            WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
+            if (incomeMessageType == WebhookIncomeMessageType.MESSAGE) {
+
+                Optional<String> senderIdFromIncomeMessage = getSenderIdFromIncomeMessage(request);
+
+                Optional<hello.domain.income.message.Message> incomeMessage = getIncomeMessage(request);
+
+                String text = "";
+
+                if (incomeMessage.isPresent()) {
+
+                    text = incomeMessage.get().getText();
+                }
+                String jsonWithUserProperties = "";
+                try{
+                    HttpSender httpSender = new HttpSender();
+                    String urlGetUserProfileData = "https://graph.facebook.com/v2.6/1784593201613679?fields=first_name,last_name,locale,gender&access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+                    jsonWithUserProperties = httpSender.sendGet(urlGetUserProfileData);
+                } catch (Exception e){
+                    System.out.println(e.getMessage());
+                    LOGGER.info(e.getMessage(), e);
+                }
+
+                UserProfile userProfile = getIncomeUserProfile(jsonWithUserProperties);
+
+                String firstName = userProfile.getFirstName();
+                String lastName = userProfile.getLastName();
+                String locale = userProfile.getLocale();
+
+                System.out.println(firstName);
+                System.out.println(lastName);
+                System.out.println(locale);
+
+                RecipientAns recipient = new RecipientAns(senderIdFromIncomeMessage.get());
+
+                MessageAns messageAns = new MessageAns("Hello " + firstName + " " + lastName + " you are from " + locale + " your msg: " + text + " it's length: " + text.length());
+
+                try {
+                    FacebookMessageAns facebookMessageAns = new FacebookMessageAns(recipient, messageAns);
+                    String json = JacksonParser.prepareObject(facebookMessageAns);
+
+                    HttpSender httpSender = new HttpSender();
+                    String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+                    httpSender.sendPost(url, json);
+                    System.out.println(url);
+
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    LOGGER.info(e.getMessage(), e);
                 }
             } else {
                 LOGGER.info("incomeMessageType: " + incomeMessageType.name());

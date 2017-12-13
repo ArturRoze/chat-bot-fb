@@ -47,7 +47,9 @@ public class HelloController {
 
 //            messageProcessor.processOutcomeMessageAndSendPersistenceMenu();
 
-            messageProcessor.processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(request);
+//            messageProcessor.processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(request);
+
+            messageProcessor.parsePersonalDataFromIncomeMessage(request);
 
             return ResponseEntity.ok().build();
         }
