@@ -1,6 +1,6 @@
 package hello.controller;
 
-import hello.service.MessageProcessor;
+import hello.service.facebook.MessageProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +50,8 @@ public class HelloController {
 //            messageProcessor.processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(request);
 
             messageProcessor.parsePersonalDataFromIncomeMessage(request);
+
+//            messageProcessor.processIncomeMessageAndSendImage(request);
 
             return ResponseEntity.ok().build();
         }

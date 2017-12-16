@@ -6,6 +6,7 @@ public enum  WebhookIncomeMessageType {
     ECHO,
     DELIVERY,
     READ,
+    IMAGE,
     UNKNOWN;
 
 }
