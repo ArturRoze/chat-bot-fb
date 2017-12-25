@@ -49,9 +49,15 @@ public class HelloController {
 
 //            messageProcessor.processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(request);
 
-            messageProcessor.parsePersonalDataFromIncomeMessage(request);
-
 //            messageProcessor.processIncomeMessageAndSendImage(request);
+
+//            messageProcessor.parsePersonalDataFromIncomeMessage(request);
+
+//            messageProcessor.parsePersonalDataAndSendAnswerMessage(request);
+
+//            messageProcessor.processIncomeMessageWithAttachmentFileAndSendCountSymbols(request);
+
+            messageProcessor.validateIncomeMessage(request);
 
             return ResponseEntity.ok().build();
         }

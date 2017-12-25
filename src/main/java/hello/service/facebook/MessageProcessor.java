@@ -17,10 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.lang.String.*;
 
 @Service
 public class MessageProcessor {
@@ -38,6 +45,22 @@ public class MessageProcessor {
                 .map(messagingObjects -> messagingObjects.get(0)
                         .getSender()
                         .getId());
+    }
+
+    public void sendAnswerMessageToSender(RecipientAns recipient, MessageAns messageAns) {
+        try {
+            FacebookMessageAns facebookMessageAns = new FacebookMessageAns(recipient, messageAns);
+            String json = JacksonParser.prepareObject(facebookMessageAns);
+
+            HttpSender httpSender = new HttpSender();
+            String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+            httpSender.sendPost(url, json);
+            System.out.println(url);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            LOGGER.info(e.getMessage(), e);
+        }
     }
 
     public void processIncomeMessageAndSendText(String request) {
@@ -246,7 +269,7 @@ public class MessageProcessor {
 
         } catch (Exception e) {
 
-            LOGGER.error(String.format(
+            LOGGER.error(format(
                     "error parse request: %s, with exception %s",
                     request, e.getMessage()), e);
         }
@@ -262,7 +285,7 @@ public class MessageProcessor {
 
         } catch (Exception e) {
 
-            LOGGER.error(String.format(
+            LOGGER.error(format(
                     "error parse request: %s, with exception %s",
                     request, e.getMessage()), e);
         }
@@ -288,7 +311,7 @@ public class MessageProcessor {
 
                 Optional<String> idFromIncomeMessage = getSenderIdFromIncomeMessage(request);
 
-                if (idFromIncomeMessage.isPresent()){
+                if (idFromIncomeMessage.isPresent()) {
                     recipient = new RecipientAns(idFromIncomeMessage.get());
                 }
 
@@ -331,14 +354,14 @@ public class MessageProcessor {
                     text = incomeMessage.get().getText();
                 }
 
-                HttpAnswer httpAnswer = null;
+                HttpAnswer httpAnswer;
                 String response = "";
-                try{
+                try {
                     HttpSender httpSender = new HttpSender();
                     String urlGetUserProfileData = "https://graph.facebook.com/v2.6/1784593201613679?fields=first_name,last_name,locale,gender&access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
                     httpAnswer = httpSender.sendGet(urlGetUserProfileData);
                     response = httpAnswer.getResponse();
-                } catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     LOGGER.info(e.getMessage(), e);
                 }
@@ -353,23 +376,158 @@ public class MessageProcessor {
 
                 MessageAns messageAns = new MessageAns("Hello " + firstName + " " + lastName + " you are from " + locale + " your msg: " + text + " it's length: " + text.length());
 
-                try {
-                    FacebookMessageAns facebookMessageAns = new FacebookMessageAns(recipient, messageAns);
-                    String json = JacksonParser.prepareObject(facebookMessageAns);
+                sendAnswerMessageToSender(recipient, messageAns);
 
-                    HttpSender httpSender = new HttpSender();
-                    String url = "https://graph.facebook.com/v2.6/me/messages?access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
-                    httpSender.sendPost(url, json);
-                    System.out.println(url);
-
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    LOGGER.info(e.getMessage(), e);
-                }
             } else {
                 LOGGER.info("incomeMessageType: " + incomeMessageType.name());
             }
         }
     }
 
+    public void parsePersonalDataAndSendAnswerMessage(String request) throws IOException {
+
+        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+
+        if (incomeFacebookMessage != null) {
+
+            Optional<String> senderIdFromIncomeMessage = getSenderIdFromIncomeMessage(request);
+
+            HttpAnswer httpAnswer;
+            String response = "";
+            try {
+                HttpSender httpSender = new HttpSender();
+                String urlGetUserProfileData = "https://graph.facebook.com/v2.6/1784593201613679?fields=first_name,last_name,locale,gender&access_token=EAAETsQm66mUBAKB8NzyYqiTmk0u8PvzUZAUnu1sQExKZBu55LokEe3wZCKuHzqBRMNZCcTeUgtDIJ7WEpLGrpcbZAP5bftHAeRJ1FHjZCcWwMS0WAgOkqqr7QTazW1bUad9FVAGMm6GiQAqvgt4doZAjDGgdoKgpMVZAwk6VKaRI5liuZAAEm7FJS";
+                httpAnswer = httpSender.sendGet(urlGetUserProfileData);
+                response = httpAnswer.getResponse();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                LOGGER.info(e.getMessage(), e);
+            }
+
+            UserProfile userProfile = getIncomeUserProfile(response);
+
+            String firstName = userProfile.getFirstName();
+            String lastName = userProfile.getLastName();
+            String locale = userProfile.getLocale();
+
+            RecipientAns recipient = null;
+            if (senderIdFromIncomeMessage.isPresent()) {
+                recipient = new RecipientAns(senderIdFromIncomeMessage.get());
+            }
+
+            MessageAns messageAns = new MessageAns("добро пожаловать " + firstName + " " + lastName + " в сервис работы с курсом валют и файлами");
+
+            sendAnswerMessageToSender(recipient, messageAns);
+
+        } else {
+            LOGGER.info("income message null");
+        }
+    }
+
+    public void validateIncomeMessage(String request) {
+
+        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+
+        if (incomeFacebookMessage != null) {
+            WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
+            if (incomeMessageType == WebhookIncomeMessageType.MESSAGE) {
+
+                try{
+
+                    Optional<String> senderIdFromIncomeMessage = getSenderIdFromIncomeMessage(request);
+
+                }catch (Exception e){
+                    LOGGER.info("incomeMessageType: " + incomeMessageType.name());
+                }
+
+                Optional<Message> incomeMessage = getIncomeMessage(request);
+
+                String text = "";
+
+                if (incomeMessage.isPresent()) {
+
+                    text = incomeMessage.get().getText();
+                }
+                System.out.println(text);
+                String[] words = text.split("\\s*[ ,.:]\\s*");
+
+                System.out.println(Arrays.toString(words));
+
+                for (int i = 0; i < words.length; i++) {
+                    if (words[i].equalsIgnoreCase("USD")){
+//                        TODO getCurrencyNbu USD
+                    } else if (words[i].equalsIgnoreCase("EUR")){
+//                        TODO getCurrencyNbu EUR
+                    } else if(words[i].equalsIgnoreCase("UAH")){
+//                        TODO getCurrencyNbu UAH
+                    }
+                }
+
+//                TODO logic
+            }
+        }
+    }
+
+    public void processIncomeMessageWithAttachmentFileAndSendCountSymbols(String request) {
+
+        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+
+        if (incomeFacebookMessage != null) {
+            WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
+            System.out.println(incomeFacebookMessage);
+            if (incomeMessageType == WebhookIncomeMessageType.FILE) {
+                Optional<Message> incomeMessage = getIncomeMessage(request);
+
+                String urlPayload = "";
+
+                if (incomeMessage.isPresent()) {
+                    urlPayload = incomeMessage.get().getAttachments().get(0).getPayLoad().getUrl();
+                }
+
+                URL url = null;
+                try {
+                    url = new URL(urlPayload);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+//                File file = new File("C:\\Users\\Artyr\\Desktop\\testFile.txt");
+
+                int countChar = 0;
+                if (url != null) {
+                    try (BufferedReader br = new BufferedReader(new FileReader(valueOf(url.openStream()))))
+                    {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            char[] chars = line.toCharArray();
+                            for (char aChar : chars) {
+                                countChar++;
+                            }
+                        }
+
+                    } catch (IOException e) {
+                        LOGGER.info(e.getMessage(), e);
+                    }
+                }
+
+                Optional<String> idFromIncomeMessage = Optional.empty();
+                try {
+                    idFromIncomeMessage = getSenderIdFromIncomeMessage(request);
+                } catch (IOException e) {
+                    LOGGER.error(request, e.getMessage(), e);
+                }
+
+                RecipientAns recipient = null;
+                if (idFromIncomeMessage.isPresent()) {
+                    recipient = new RecipientAns(idFromIncomeMessage.get());
+                }
+
+                MessageAns messageAns = new MessageAns("Count symbols in your file is: " + countChar);
+
+                sendAnswerMessageToSender(recipient, messageAns);
+
+            } else {
+                System.out.println("not valid data");
+            }
+        }
+    }
 }

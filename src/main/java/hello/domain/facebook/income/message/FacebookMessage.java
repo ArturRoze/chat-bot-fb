@@ -22,7 +22,6 @@ public class FacebookMessage {
 
     private List<EntryObject> entry;
 
-
     public WebhookIncomeMessageType determineMessageType() {
 
         Message message = entry.get(0).getMessaging().get(0).getMessage();
@@ -33,7 +32,9 @@ public class FacebookMessage {
             attachmentsObject = message.getAttachments().get(0);
         }
 
-        if (attachmentsObject != null && attachmentsObject.getType().equals("image")) {
+        if (attachmentsObject != null && attachmentsObject.getType().equals("file")) {
+            return WebhookIncomeMessageType.FILE;
+        } else if (attachmentsObject != null && attachmentsObject.getType().equals("image")) {
             return WebhookIncomeMessageType.IMAGE;
         } else if (message != null && message.isEcho()) {
             return WebhookIncomeMessageType.ECHO;
@@ -47,5 +48,4 @@ public class FacebookMessage {
             return WebhookIncomeMessageType.UNKNOWN;
         }
     }
-
 }

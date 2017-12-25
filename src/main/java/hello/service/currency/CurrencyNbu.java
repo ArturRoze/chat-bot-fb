@@ -1,5 +1,6 @@
 package hello.service.currency;
 
+import hello.domain.currency.nbu.CurrencyNbuObject;
 import hello.utils.HttpAnswer;
 import hello.utils.HttpSender;
 import hello.utils.JacksonParser;
@@ -16,14 +17,13 @@ public class CurrencyNbu  implements Currency{
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-
     @Override
-    public List<hello.domain.currency.Currency> getCurrency() {
+    public List<CurrencyNbuObject> getCurrencies() {
 
         HttpSender httpSender = new HttpSender();
         String url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json";
 
-        List<hello.domain.currency.Currency> currencies = Collections.EMPTY_LIST;
+        List<CurrencyNbuObject> currencies = Collections.EMPTY_LIST;
 
         try {
 

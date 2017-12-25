@@ -1,5 +1,6 @@
 package hello.service.currency;
 
+import hello.domain.currency.nbu.CurrencyNbuObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class CurrencyService {
          * business logic
          */
 
-        List<hello.domain.currency.Currency> currency = this.currency.getCurrency();
+        List<CurrencyNbuObject> currency = this.currency.getCurrencies();
         return null;
     }
 

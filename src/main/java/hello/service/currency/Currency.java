@@ -1,7 +1,10 @@
 package hello.service.currency;
 
+import hello.domain.currency.nbu.CurrencyNbuObject;
+
 import java.util.List;
 
 public interface Currency {
-    List<hello.domain.currency.Currency> getCurrency();
+
+    List<CurrencyNbuObject> getCurrencies();
 }
