@@ -3,6 +3,7 @@ package hello.enums;
 public enum CurrencyType {
 
     EUR,
-    UAH,
+    RUB,
+    GBP,
     USD;
 }

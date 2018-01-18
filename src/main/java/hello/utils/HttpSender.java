@@ -1,10 +1,7 @@
 package hello.utils;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 
 public class HttpSender {
@@ -18,10 +15,10 @@ public class HttpSender {
         con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         con.setDoOutput(true);
 
-        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-        wr.writeBytes(body);
-        wr.flush();
-        wr.close();
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(con.getOutputStream(), "UTF-8"));
+        bw.write(body);
+        bw.flush();
+        bw.close();
 
         int responseCode = con.getResponseCode();
         System.out.println("\nSending 'POST' request to URL : " + url);
@@ -55,7 +52,7 @@ public class HttpSender {
         HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
 
         con.setRequestMethod("GET");
-//        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         con.setDoOutput(true);
 
         int responseCode = con.getResponseCode();

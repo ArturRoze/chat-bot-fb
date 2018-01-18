@@ -1,6 +1,6 @@
 package hello.controller;
 
-import hello.service.facebook.MessageProcessor;
+import hello.service.MainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-public class HelloController {
+public class Webhook {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    private final MessageProcessor messageProcessor;
+    private final MainService mainService;
 
     @Autowired
-    public HelloController(MessageProcessor messageProcessor) {
-        this.messageProcessor = messageProcessor;
+    public Webhook(MainService mainService) {
+        this.mainService = mainService;
     }
 
     @RequestMapping("/webhook")
@@ -31,7 +31,6 @@ public class HelloController {
                                         @RequestParam(name = "hub.challenge", required = false) String challenge) throws IOException {
 
         System.out.println("request: " + request);
-        System.out.println("name: " + name);
 
         if (name != null && name.equals("archy198518")) {
 
@@ -41,23 +40,7 @@ public class HelloController {
 
         } else {
 
-//            messageProcessor.processIncomeMessageAndSendText(request);
-
-//            messageProcessor.processIncomeMessageAndSendCarousel(request);
-
-//            messageProcessor.processOutcomeMessageAndSendPersistenceMenu();
-
-//            messageProcessor.processIncomeMessageAndSendToSenderAnswerWithTextMessageAndAmountSymbols(request);
-
-//            messageProcessor.processIncomeMessageAndSendImage(request);
-
-//            messageProcessor.parsePersonalDataFromIncomeMessage(request);
-
-//            messageProcessor.parsePersonalDataAndSendAnswerMessage(request);
-
-//            messageProcessor.processIncomeMessageWithAttachmentFileAndSendCountSymbols(request);
-
-            messageProcessor.validateIncomeMessage(request);
+            mainService.processIncomeMessage(request);
 
             return ResponseEntity.ok().build();
         }

@@ -1,4 +1,4 @@
-package hello.service.facebook;
+package hello.service;
 
 import hello.domain.facebook.income.message.EntryObject;
 import hello.domain.facebook.income.message.Message;
@@ -9,6 +9,7 @@ import hello.domain.facebook.outcome.message.*;
 import hello.domain.facebook.outcome.persistentmenu.CallToActions;
 import hello.domain.facebook.outcome.persistentmenu.PersistentMenu;
 import hello.domain.facebook.outcome.persistentmenu.StartPersistenceMenu;
+import hello.enums.CurrencyType;
 import hello.enums.WebhookIncomeMessageType;
 import hello.utils.HttpAnswer;
 import hello.utils.HttpSender;
@@ -20,13 +21,11 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static hello.enums.CurrencyType.USD;
 import static java.lang.String.*;
 
 @Service
@@ -261,6 +260,22 @@ public class MessageProcessor {
         return Optional.empty();
     }
 
+    public Optional<String> getTextFromIncomeMessage(FacebookMessage incomeFacebookMessage) {
+
+        try {
+            List<EntryObject> entry = incomeFacebookMessage.getEntry();
+            return Optional.of(entry)
+                    .map((List<EntryObject> t) -> t.get(0).getMessaging())
+                    .map(messagingObjects -> messagingObjects.get(0)
+                            .getMessage().getText());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            LOGGER.info(e.getMessage(), e);
+        }
+
+        return Optional.empty();
+    }
+
     public FacebookMessage getIncomeFacebookMessage(String request) {
 
         FacebookMessage facebookMessage = null;
@@ -415,7 +430,7 @@ public class MessageProcessor {
                 recipient = new RecipientAns(senderIdFromIncomeMessage.get());
             }
 
-            MessageAns messageAns = new MessageAns("добро пожаловать " + firstName + " " + lastName + " в сервис работы с курсом валют и файлами");
+            MessageAns messageAns = new MessageAns("Добро пожаловать " + firstName + " " + lastName + " в сервис работы с курсом валют и файлами");
 
             sendAnswerMessageToSender(recipient, messageAns);
 
@@ -424,48 +439,21 @@ public class MessageProcessor {
         }
     }
 
-    public void validateIncomeMessage(String request) {
+    public Set<CurrencyType> searchCurrencyInText(String text) {
 
-        FacebookMessage incomeFacebookMessage = getIncomeFacebookMessage(request);
+        Set<CurrencyType> currencyTypes = new HashSet<>();
 
-        if (incomeFacebookMessage != null) {
-            WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
-            if (incomeMessageType == WebhookIncomeMessageType.MESSAGE) {
+        String changedText = text.toUpperCase();
+        CurrencyType[] valuesCurrency = CurrencyType.values();
 
-                try{
-
-                    Optional<String> senderIdFromIncomeMessage = getSenderIdFromIncomeMessage(request);
-
-                }catch (Exception e){
-                    LOGGER.info("incomeMessageType: " + incomeMessageType.name());
-                }
-
-                Optional<Message> incomeMessage = getIncomeMessage(request);
-
-                String text = "";
-
-                if (incomeMessage.isPresent()) {
-
-                    text = incomeMessage.get().getText();
-                }
-                System.out.println(text);
-                String[] words = text.split("\\s*[ ,.:]\\s*");
-
-                System.out.println(Arrays.toString(words));
-
-                for (int i = 0; i < words.length; i++) {
-                    if (words[i].equalsIgnoreCase("USD")){
-//                        TODO getCurrencyNbu USD
-                    } else if (words[i].equalsIgnoreCase("EUR")){
-//                        TODO getCurrencyNbu EUR
-                    } else if(words[i].equalsIgnoreCase("UAH")){
-//                        TODO getCurrencyNbu UAH
-                    }
-                }
-
-//                TODO logic
+        for (CurrencyType currencyType : valuesCurrency) {
+            if (changedText.contains(currencyType.name())) {
+                currencyTypes.add(currencyType);
             }
         }
+        System.out.println("text: " + text);
+        System.out.println("list currencies from text: " + currencyTypes);
+        return currencyTypes;
     }
 
     public void processIncomeMessageWithAttachmentFileAndSendCountSymbols(String request) {
@@ -484,29 +472,17 @@ public class MessageProcessor {
                     urlPayload = incomeMessage.get().getAttachments().get(0).getPayLoad().getUrl();
                 }
 
-                URL url = null;
+                URL url;
+                String name = "";
                 try {
                     url = new URL(urlPayload);
+                    File file = new File(url.getFile());
+                    String dirtyName = file.getName();
+                    String[] names = dirtyName.split("\\?");
+                    name = names[0];
+                    System.out.println("name -----" + name);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
-                }
-//                File file = new File("C:\\Users\\Artyr\\Desktop\\testFile.txt");
-
-                int countChar = 0;
-                if (url != null) {
-                    try (BufferedReader br = new BufferedReader(new FileReader(valueOf(url.openStream()))))
-                    {
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            char[] chars = line.toCharArray();
-                            for (char aChar : chars) {
-                                countChar++;
-                            }
-                        }
-
-                    } catch (IOException e) {
-                        LOGGER.info(e.getMessage(), e);
-                    }
                 }
 
                 Optional<String> idFromIncomeMessage = Optional.empty();
@@ -521,7 +497,7 @@ public class MessageProcessor {
                     recipient = new RecipientAns(idFromIncomeMessage.get());
                 }
 
-                MessageAns messageAns = new MessageAns("Count symbols in your file is: " + countChar);
+                MessageAns messageAns = new MessageAns("имя файла " + name + " путь: " + urlPayload);
 
                 sendAnswerMessageToSender(recipient, messageAns);
 

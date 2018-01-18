@@ -23,7 +23,7 @@ public class CurrencyPrivatObject {
 
     private String baseCurrencyLit;
 
-    private ExchangeRateObject exchangeRate;
+    private ExchangeRateObject[] exchangeRate;
 }
 
 
