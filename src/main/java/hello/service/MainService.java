@@ -22,6 +22,7 @@ public class MainService {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final MessageProcessor messageProcessor;
     private final CurrencyService currencyService;
+    private final String notValidData = "not valid data";
 
     @Autowired
     public MainService(MessageProcessor messageProcessor, CurrencyService currencyService) {
@@ -37,6 +38,8 @@ public class MainService {
             WebhookIncomeMessageType incomeMessageType = incomeFacebookMessage.determineMessageType();
             if (incomeMessageType == WebhookIncomeMessageType.FILE) {
 
+                messageProcessor.processIncomeMessageWithAttachmentFileAndSendCountSymbols(request);
+
             } else if (incomeMessageType == WebhookIncomeMessageType.MESSAGE) {
 
                 Optional<String> textFromIncomeMessage = messageProcessor.getTextFromIncomeMessage(incomeFacebookMessage);
@@ -46,7 +49,6 @@ public class MainService {
                     if (!currencyTypes.isEmpty()) {
 
                         String currencies = currencyService.getCurrency(currencyTypes);
-
 
                         Optional<String> senderIdFromIncomeMessage = Optional.empty();
                         try {
@@ -66,6 +68,23 @@ public class MainService {
                         messageProcessor.sendAnswerMessageToSender(recipientAns, messageAns);
 
                     } else {
+                        LOGGER.info("not valid data");
+                        Optional<String> senderIdFromIncomeMessage = Optional.empty();
+                        try {
+                            senderIdFromIncomeMessage = messageProcessor.getSenderIdFromIncomeMessage(request);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        RecipientAns recipientAns = null;
+                        if (senderIdFromIncomeMessage.isPresent()){
+
+                            recipientAns = new RecipientAns(senderIdFromIncomeMessage.get());
+                        }
+
+                        MessageAns messageAns = new MessageAns(notValidData);
+
+                        messageProcessor.sendAnswerMessageToSender(recipientAns, messageAns);
 //                      TODO send message to messenger
                     }
 

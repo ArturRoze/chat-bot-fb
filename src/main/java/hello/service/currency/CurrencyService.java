@@ -32,7 +32,7 @@ public class CurrencyService {
     public String getCurrency(Set<CurrencyType> currencyTypes) {
 
         String urlNbu = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json";
-        String urlPrivat = "https://api.privatbank.ua/p24api/exchange_rates?json&date=10.12.2017";
+        String urlPrivat = "https://api.privatbank.ua/p24api/exchange_rates?json&date=16.01.2018";
 
         CurrencyPrivatObject currencyPrivatObject = RestUtils.requestObject(urlPrivat, CurrencyPrivatObject.class);
         System.out.println("currencies" + currencyPrivatObject);
@@ -50,8 +50,7 @@ public class CurrencyService {
                 }
             }
 
-            DateTimeFormatter dateTime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-            String currentDate = dateTime.format(LocalDateTime.now());
+            String currentDate = getCurrentDate();
 
             StringBuilder sb = new StringBuilder();
             sb.append("Date: ");
@@ -69,6 +68,11 @@ public class CurrencyService {
             LOGGER.info(serviceUnavailable);
             return serviceUnavailable;
         }
+    }
+
+    public String getCurrentDate() {
+        DateTimeFormatter dateTime = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+        return dateTime.format(LocalDateTime.now());
     }
 }
 
