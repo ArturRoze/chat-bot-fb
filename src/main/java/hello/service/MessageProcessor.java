@@ -497,7 +497,7 @@ public class MessageProcessor {
                     recipient = new RecipientAns(idFromIncomeMessage.get());
                 }
 
-                MessageAns messageAns = new MessageAns("имя файла " + name + " путь: " + urlPayload);
+                MessageAns messageAns = new MessageAns("Имя файла: " + name + "\n" + "Путь: " + urlPayload);
 
                 sendAnswerMessageToSender(recipient, messageAns);
 
