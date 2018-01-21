@@ -22,7 +22,7 @@ public class MainService {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final MessageProcessor messageProcessor;
     private final CurrencyService currencyService;
-    private final String notValidData = "not valid data";
+    private final String notValidData = "Your request is not clear. Do you want a currency rate?";
 
     @Autowired
     public MainService(MessageProcessor messageProcessor, CurrencyService currencyService) {
@@ -85,7 +85,6 @@ public class MainService {
                         MessageAns messageAns = new MessageAns(notValidData);
 
                         messageProcessor.sendAnswerMessageToSender(recipientAns, messageAns);
-//                      TODO send message to messenger
                     }
 
                 } else {
